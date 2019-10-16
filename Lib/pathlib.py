@@ -5,6 +5,7 @@ import ntpath
 import os
 import posixpath
 import re
+import shutil
 import sys
 from _collections_abc import Sequence
 from errno import EINVAL, ENOENT, ENOTDIR, EBADF, ELOOP
@@ -1368,6 +1369,19 @@ class Path(PurePath):
         if self._closed:
             self._raise_closed()
         self._accessor.symlink(target, self, target_is_directory)
+
+    def copy(self, target):
+        """
+        Copy file content and permission bits of this path to the target path
+        and return a new Path instance pointing to the target path.
+        If target is a directory, the base filename of this path is added to
+        the target and a new file corresponding to the target is created.
+        If target points to an existing file, that file is overwritten.
+        """
+        if not self.is_file():
+            raise ValueError("Path must point to a regular file")
+        target = shutil.copy(self, target)
+        return self.__class__(target)
 
     # Convenience functions for querying the stat results
 
